@@ -8,6 +8,7 @@
 #include <filesystem>
 #include <iostream>
 #include <vector>
+#include <string>
 
 namespace fs = std::filesystem;
 
@@ -29,7 +30,12 @@ bool processFile(fs::path input, IO::Options &options, bool outputIsDirectory) {
 		return false;
 	}
 
-	Common::ReadStream stream(buf.data(), buf.size());
+	int offset = 0;
+	if (options.hasOption("offset")) {
+		offset = std::stoi(options.stringValue("offset"), nullptr, 0);
+	}
+
+	Common::ReadStream stream(buf.data(), buf.size(), Common::kBigEndian, offset);
 	auto dir = std::make_unique<DirectorFile>();
 	if (!dir->read(&stream))
 		return false;
