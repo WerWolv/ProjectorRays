@@ -30,9 +30,19 @@ bool processFile(fs::path input, IO::Options &options, bool outputIsDirectory) {
 		return false;
 	}
 
-	int offset = 0;
+	size_t offset = 0;
 	if (options.hasOption("offset")) {
-		offset = std::stoi(options.stringValue("offset"), nullptr, 0);
+		try {
+			offset = std::stoull(options.stringValue("offset"), nullptr, 0);
+		} catch (std::exception &e) {
+			Common::warning("Value passed to --offset is not a valid integer!");
+			return false;
+		}
+	}
+
+	if (offset >= buf.size()) {
+		Common::warning("Value passed to --offset points past the end of the file!");
+		return false;
 	}
 
 	Common::ReadStream stream(buf.data(), buf.size(), Common::kBigEndian, offset);
